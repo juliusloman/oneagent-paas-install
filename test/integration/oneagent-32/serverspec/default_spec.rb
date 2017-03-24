@@ -5,10 +5,11 @@ set :backend, :exec
 
 ENV['HOME'] = '/tmp/kitchen/data'
 
+DT_CLUSTER = 'dev.dynatracelabs.com'
 DT_TENANT = 'ryx70518'
 DT_TENANTTOKEN = 'NkM5fd7JG1Hzmmoh'
 DT_API_TOKEN = 'w89AycHAQByUUfu993UHG'
-DT_AGENT_BASE_URL = 'https://' + DT_TENANT + '.dev.dynatracelabs.com'
+DT_AGENT_BASE_URL = "https://#{DT_TENANT}.#{DT_CLUSTER}"
 
 def parse_cmd(cmd, opts)
   result = ''
@@ -184,7 +185,7 @@ end
 # Test installer with invalid DT_API_TOKEN
 opts = { DT_AGENT_BASE_URL: DT_AGENT_BASE_URL, DT_API_TOKEN: 'abcdefghijklmnopqrstuvwxyz' }
 describe command(parse_cmd('~/paas-install.sh', opts)) do
-  its(:stderr) { should match /^Connecting to ryx70518.dev.dynatracelabs.com.*401 Unauthorized\n$/m }
+  its(:stderr) { should match Regexp.new("^Connecting to #{DT_TENANT}.#{DT_CLUSTER}.*401 Unauthorized\n$", Regexp::MULTILINE) }
   its(:exit_status) { should eq 1 }
 end
 
@@ -192,7 +193,7 @@ end
 opts = { DT_AGENT_BASE_URL: DT_AGENT_BASE_URL, DT_API_TOKEN: DT_API_TOKEN, DT_AGENT_BITNESS: '32' }
 describe command(parse_cmd('~/paas-install.sh', opts)) do
   its(:stdout) { should match /Installing to \/var\/lib.*Unpacking complete./m }
-  its(:stderr) { should match /^Connecting to ryx70518.dev.dynatracelabs.com./m }
+  its(:stderr) { should match Regexp.new("Connecting to #{DT_TENANT}.#{DT_CLUSTER}.", Regexp::MULTILINE) }
   its(:exit_status) { should eq 0 }
 end
 
