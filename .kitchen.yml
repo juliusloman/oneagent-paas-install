@@ -19,4 +19,5 @@ platforms:
     - apk add --no-cache sudo ruby ruby-io-console openssl bash
 
 suites:
+- name: oneagent-32
 - name: oneagent-64
