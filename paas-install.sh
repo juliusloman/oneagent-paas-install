@@ -92,20 +92,3 @@ DT_AGENT_URL="${DT_AGENT_URL:-${DT_AGENT_BASE_URL}/api/v1/deployment/installer/a
 download_oneagent "${DT_AGENT_URL}" "${DT_AGENT_SH_FILE}"
 sh "${DT_AGENT_SH_FILE}" "${DT_AGENT_PREFIX_DIR}"
 rm -f "${DT_AGENT_SH_FILE}"
-
-# Fix file permissions until they're fixed in the Dynatrace OneAgent archive
-if [ -f "${DT_AGENT_PREFIX_DIR}/${DT_AGENT_DIR}/dynatrace-agent32.sh" ]; then
-  chmod 755 "${DT_AGENT_PREFIX_DIR}/${DT_AGENT_DIR}/dynatrace-agent32.sh"
-fi
-
-if [ -f "${DT_AGENT_PREFIX_DIR}/${DT_AGENT_DIR}/dynatrace-agent64.sh" ]; then
-  chmod 755 "${DT_AGENT_PREFIX_DIR}/${DT_AGENT_DIR}/dynatrace-agent64.sh"
-fi
-
-if [ -d "${DT_AGENT_PREFIX_DIR}/${DT_AGENT_DIR}/log" ]; then
-  chmod 777 "${DT_AGENT_PREFIX_DIR}/${DT_AGENT_DIR}/log"
-fi
-
-if [ -d "${DT_AGENT_PREFIX_DIR}/${DT_AGENT_DIR}/agent/conf/runtime" ]; then
-  chmod 777 "${DT_AGENT_PREFIX_DIR}/${DT_AGENT_DIR}/agent/conf/runtime"
-fi
