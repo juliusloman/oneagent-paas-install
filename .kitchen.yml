@@ -1,0 +1,23 @@
+---
+provisioner:
+  name: shell
+  data_path: .
+
+driver:
+  name: docker_cli
+
+verifier:
+  ruby_bindir: /usr/bin
+
+transport:
+  name: docker_cli
+
+platforms:
+- name: alpine
+  driver_config:
+    run_command:
+    - apk add --no-cache sudo ruby ruby-io-console openssl bash
+
+suites:
+- name: unix-32-default
+- name: unix-64-default
