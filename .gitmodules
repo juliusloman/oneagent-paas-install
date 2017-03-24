@@ -1,3 +1,0 @@
-[submodule "openshift-s2i/s2i-wildfly"]
-	path = test/openshift-s2i/s2i-wildfly
-	url = https://github.com/openshift-s2i/s2i-wildfly.git
