@@ -189,26 +189,26 @@ describe command(parse_cmd('~/paas-install.sh', opts)) do
   its(:exit_status) { should eq 1 }
 end
 
-# Test installer: all technologies, 64-bit, into /tmp)
-opts = { DT_AGENT_BASE_URL: DT_AGENT_BASE_URL, DT_API_TOKEN: DT_API_TOKEN, DT_AGENT_FOR: 'all', DT_AGENT_BITNESS: '64', DT_AGENT_PREFIX_DIR: '/tmp' }
+# Test installer: defaults
+opts = { DT_AGENT_BASE_URL: DT_AGENT_BASE_URL, DT_API_TOKEN: DT_API_TOKEN }
 describe command(parse_cmd('~/paas-install.sh', opts)) do
-  its(:stdout) { should match /Installing to \/tmp.*Unpacking complete./m }
+  its(:stdout) { should match /Installing to \/var\/lib.*Unpacking complete./m }
   its(:stderr) { should match Regexp.new("Connecting to #{DT_TENANT}.#{DT_CLUSTER}.", Regexp::MULTILINE) }
   its(:exit_status) { should eq 0 }
 end
 
-describe file('/tmp/dynatrace/oneagent/dynatrace-env.sh') do
+describe file('/var/lib/dynatrace/oneagent/dynatrace-env.sh') do
   it { should be_file }
   its(:content) { should include 'export DT_TENANT=' + DT_TENANT }
   its(:content) { should include 'export DT_TENANTTOKEN=' + DT_TENANTTOKEN }
   its(:content) { should match /export DT_CONNECTION_POINT=".+"/ }
 end
 
-describe file('/tmp/dynatrace/oneagent/dynatrace-agent32.sh') do
+describe file('/var/lib/dynatrace/oneagent/dynatrace-agent32.sh') do
   it { should_not exist }
 end
 
-describe file('/tmp/dynatrace/oneagent/dynatrace-agent64.sh') do
+describe file('/var/lib/dynatrace/oneagent/dynatrace-agent64.sh') do
   it { should be_file }
   it { should be_executable }
 end
