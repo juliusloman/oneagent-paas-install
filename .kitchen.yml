@@ -22,3 +22,11 @@ suites:
 - name: oneagent-default
 - name: oneagent-32
 - name: oneagent-64
+- name: oneagent-64-java
+  driver_config:
+    run_command:
+    - apt update && apt install -y sudo ruby openjdk-8-jre-headless
+- name: oneagent-64-nginx
+  driver_config:
+    run_command:
+    - apt update && apt install -y sudo ruby nginx
