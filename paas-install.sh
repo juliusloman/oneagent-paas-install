@@ -11,10 +11,18 @@ download_oneagent() {
   FILE="$2"
 
   # Test which of the following commands is available.
+  cmd=
   if validate_command_exists curl; then
-    curl "${URL}" > "${FILE}"
+    cmd='curl'
   elif validate_command_exists wget; then
-    wget -O "${FILE}" "${URL}"
+    cmd='wget -O-'
+  fi
+
+  if [ ! -z "$cmd" ]; then
+    echo "Connecting to $URL"
+    $cmd "${URL}" > ${FILE}
+  else
+    die "failed to determine download command: neither curl nor wget are available"
   fi
 }
 
@@ -45,7 +53,7 @@ validate_prefix_dir() {
 }
 
 validate_technology() {
-  echo "$1" | grep -qE "^(all|apache|java|nginx|nodejs|php|ruby|varnish|websphere)$" >/dev/null 2>&1
+  echo "$1" | grep -qiE "^(all|apache|java|nginx|nodejs|php|ruby|varnish|websphere)$" >/dev/null 2>&1
 }
 
 validate_tenant() {

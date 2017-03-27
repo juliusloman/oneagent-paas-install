@@ -13,10 +13,10 @@ transport:
   name: docker_cli
 
 platforms:
-- name: alpine
+- name: ubuntu
   driver_config:
     run_command:
-    - apk add --no-cache sudo ruby ruby-io-console openssl bash
+    - apt update && apt install -y sudo ruby
 
 suites:
 - name: oneagent-default
