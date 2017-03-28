@@ -22,6 +22,9 @@ suites:
 - name: oneagent-default
 - name: oneagent-32
 - name: oneagent-64
+- name: oneagent-64-apache
+  driver_config:
+    image: webdevops/apache:ubuntu-16.04
 - name: oneagent-64-java
 - name: oneagent-64-nginx
 - name: oneagent-64-nodejs
