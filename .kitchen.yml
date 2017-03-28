@@ -16,17 +16,12 @@ platforms:
 - name: ubuntu
   driver_config:
     run_command:
-    - apt update && apt install -y sudo ruby
+    - apt update && apt install -y sudo curl ruby unzip
 
 suites:
 - name: oneagent-default
 - name: oneagent-32
 - name: oneagent-64
 - name: oneagent-64-java
-  driver_config:
-    run_command:
-    - apt update && apt install -y sudo ruby openjdk-8-jre-headless
 - name: oneagent-64-nginx
-  driver_config:
-    run_command:
-    - apt update && apt install -y sudo ruby nginx
+- name: oneagent-64-nodejs
