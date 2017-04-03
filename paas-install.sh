@@ -82,7 +82,7 @@ validate_prefix_dir() {
 }
 
 validate_technology() {
-  echo "$1" | grep -qiE "^(all|apache|java|nginx|nodejs|php|ruby|varnish|websphere)$" >/dev/null 2>&1
+  echo "$1" | grep -qiE "^(all|apache|java|nginx|nodejs|nodejs-npm|php|ruby|varnish|websphere)$" >/dev/null 2>&1
 }
 
 validate_tenant() {
@@ -121,7 +121,7 @@ validate_prefix_dir "$DT_AGENT_PREFIX_DIR" || die "failed to validate DT_AGENT_P
 validate_technology "$DT_AGENT_FOR"        || die "failed to validate DT_AGENT_FOR: $DT_AGENT_FOR"
 
 # Download and install Dynatrace OneAgent.
-if [ "$DT_AGENT_FOR" = "nodejs" ]; then
+if [ "$DT_AGENT_FOR" = "nodejs-npm" ]; then
   install_oneagent_npm "$DT_AGENT_APP"
 else
   install_oneagent "$DT_AGENT_URL" "$DT_AGENT_PREFIX_DIR"

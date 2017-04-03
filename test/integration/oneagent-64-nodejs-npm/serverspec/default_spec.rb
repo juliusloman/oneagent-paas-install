@@ -12,7 +12,7 @@ require ENV['HOME'] + '/test/dynatrace/util.rb'
 opts = {
   DT_AGENT_BASE_URL:   Dynatrace::Defaults::DT_AGENT_BASE_URL,
   DT_API_TOKEN:        Dynatrace::Defaults::DT_API_TOKEN,
-  DT_AGENT_FOR:        'nodejs',
+  DT_AGENT_FOR:        'nodejs-npm',
   DT_AGENT_BITNESS:    '64',
   DT_AGENT_PREFIX_DIR: '/tmp',
   DT_AGENT_APP:        '/app/index.js'
