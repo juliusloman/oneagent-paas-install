@@ -82,7 +82,7 @@ validate_prefix_dir() {
 }
 
 validate_technology() {
-  echo "$1" | grep -qiE "^(all|apache|java|nginx|nodejs|nodejs-npm|php|ruby|varnish|websphere)$" >/dev/null 2>&1
+  echo "$1" | grep -qiE "^(all|apache|java|nginx|nodejs-npm|php|varnish|websphere)$" >/dev/null 2>&1
 }
 
 validate_tenant() {
