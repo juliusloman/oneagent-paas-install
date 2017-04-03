@@ -149,7 +149,7 @@ end
 # Test installer with non-existent DT_AGENT_BASE_URL
 opts = { DT_AGENT_BASE_URL: 'https://my-tenant.my-dynatrace-cluster.com', DT_API_TOKEN: 'abcdefghijklmnopqrstuvwxyz' }
 describe command(Dynatrace::Util::parse_cmd('~/paas-install.sh', opts)) do
-  its(:stdout) { should match /^Connecting to https:\/\/my-tenant.my-dynatrace-cluster.com/ }
+  its(:stdout) { should contain "Connecting to https://my-tenant.my-dynatrace-cluster.com" }
   its(:stderr) { should match /could not resolve host/i }
   its(:exit_status) { should_not eq 0 }
 end
@@ -157,18 +157,18 @@ end
 # Test installer with non-existent DT_TENANT
 opts = { DT_TENANT: '12345678', DT_API_TOKEN: 'abcdefghijklmnopqrstuvwxyz' }
 describe command(Dynatrace::Util::parse_cmd('~/paas-install.sh', opts)) do
-  its(:stdout) { should match /Connecting to https:\/\/12345678.live.dynatrace.com/ }
+  its(:stdout) { should contain "Connecting to https://12345678.live.dynatrace.com/" }
   its(:stderr) { should match /failed to resolve tenant <12345678>/i }
-  its(:stderr) { should match /404/ }
+  its(:stderr) { should contain "404" }
   its(:exit_status) { should_not eq 0 }
 end
 
 # Test installer with invalid DT_API_TOKEN
 opts = { DT_AGENT_BASE_URL: Dynatrace::Defaults::DT_AGENT_BASE_URL, DT_API_TOKEN: 'abcdefghijklmnopqrstuvwxyz' }
 describe command(Dynatrace::Util::parse_cmd('~/paas-install.sh', opts)) do
-  its(:stdout) { should match Regexp.new("^Connecting to #{Dynatrace::Defaults::DT_AGENT_BASE_URL}") }
+  its(:stdout) { should contain "Connecting to #{Dynatrace::Defaults::DT_AGENT_BASE_URL}" }
   its(:stderr) { should match /token authentication failed/i }
-  its(:stderr) { should match /401/ }
+  its(:stderr) { should contain "401" }
   its(:exit_status) { should_not eq 0 }
 end
 
@@ -176,14 +176,14 @@ end
 opts = { DT_AGENT_BASE_URL: Dynatrace::Defaults::DT_AGENT_BASE_URL, DT_API_TOKEN: Dynatrace::Defaults::DT_API_TOKEN }
 describe command(Dynatrace::Util::parse_cmd('~/paas-install.sh', opts)) do
   its(:stdout) { should match /Installing to \/var\/lib.*Unpacking complete./m }
-  its(:stdout) { should match Regexp.new("Connecting to #{Dynatrace::Defaults::DT_AGENT_BASE_URL}") }
+  its(:stdout) { should contain "Connecting to #{Dynatrace::Defaults::DT_AGENT_BASE_URL}" }
   its(:exit_status) { should eq 0 }
 end
 
 describe file('/var/lib/dynatrace/oneagent/dynatrace-env.sh') do
   it { should be_file }
-  its(:content) { should include 'export DT_TENANT=' + Dynatrace::Defaults::DT_TENANT }
-  its(:content) { should include 'export DT_TENANTTOKEN=' + Dynatrace::Defaults::DT_TENANTTOKEN }
+  its(:content) { should contain 'export DT_TENANT=' + Dynatrace::Defaults::DT_TENANT }
+  its(:content) { should contain 'export DT_TENANTTOKEN=' + Dynatrace::Defaults::DT_TENANTTOKEN }
   its(:content) { should match /export DT_CONNECTION_POINT=".+"/ }
 end
 
