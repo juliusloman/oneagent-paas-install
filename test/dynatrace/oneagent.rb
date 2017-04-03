@@ -7,14 +7,6 @@ module Dynatrace
       return "/tmp/dynatrace/oneagent/dynatrace-agent#{bitness}.sh #{cmd}"
     end
 
-    def self.get_monitored_bg_process_cmd(cmd, process = nil, lifetime = 10, bitness = Dynatrace::OneAgent::BITNESS_64)
-      if process.nil?
-        process = `basename #{cmd}`
-      end
-
-      return "((sleep #{lifetime} && killall #{process}) &); /tmp/dynatrace/oneagent/dynatrace-agent#{bitness}.sh #{cmd}"
-    end
-
     class Apache
       def self.get_monitored_process_log()
         return "/tmp/dynatrace/oneagent/log/apache/ruxitagent_Apache_Web_Server_apache2_*.log"

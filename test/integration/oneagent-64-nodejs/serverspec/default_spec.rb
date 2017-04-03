@@ -26,7 +26,7 @@ describe file("/app/index.js") do
   its(:content) { should match Regexp.new(Regexp.escape("try { require('@dynatrace/oneagent') ({ server: '#{Dynatrace::Defaults::DT_AGENT_BASE_URL}', apitoken: '#{Dynatrace::Defaults::DT_API_TOKEN}' }); } catch(err) { console.log(err.toString()); }")) }
 end
 
-describe command(Dynatrace::OneAgent::get_monitored_bg_process_cmd('node /app/index.js', 'node')) do
+describe command(Dynatrace::Util::get_fg_process('node /app/index.js', 'node')) do
   its(:stderr) { should match /Agent version.*1.*/ }
   its(:stderr) { should match /Hooking to module load procedure/ }
 end
