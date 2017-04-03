@@ -7,27 +7,38 @@ ENV['HOME'] = '/tmp/kitchen/data'
 require ENV['HOME'] + '/test/dynatrace/defaults.rb'
 require ENV['HOME'] + '/test/dynatrace/util.rb'
 
+# Test installer with arguments -h and --help
+describe command('~/paas-install.sh -h') do
+  its(:stdout) { should contain 'Usage:' }
+  its(:exit_status) { should eq 0 }
+end
+
+describe command('~/paas-install.sh --help') do
+  its(:stdout) { should contain 'Usage:' }
+  its(:exit_status) { should eq 0 }
+end
+
 # Test installer with insufficient arguments
 describe command('~/paas-install.sh') do
-  its(:stdout) { should eq "help...\n" }
+  its(:stdout) { should contain 'Usage:' }
   its(:exit_status) { should eq 1 }
 end
 
 opts = { DT_TENANT: nil }
 describe command(Dynatrace::Util::parse_cmd('~/paas-install.sh', opts)) do
-  its(:stdout) { should eq "help...\n" }
+  its(:stdout) { should contain 'Usage:' }
   its(:exit_status) { should eq 1 }
 end
 
 opts = { DT_API_TOKEN: nil }
 describe command(Dynatrace::Util::parse_cmd('~/paas-install.sh', opts)) do
-  its(:stdout) { should eq "help...\n" }
+  its(:stdout) { should contain 'Usage:' }
   its(:exit_status) { should eq 1 }
 end
 
 opts = { DT_TENANT: nil, DT_AGENT_BASE_URL: nil }
 describe command(Dynatrace::Util::parse_cmd('~/paas-install.sh', opts)) do
-  its(:stdout) { should eq "help...\n" }
+  its(:stdout) { should contain 'Usage:' }
   its(:exit_status) { should eq 1 }
 end
 

@@ -3,7 +3,49 @@ ME=$(basename "$0")
 
 help() {
   EXIT_CODE=${1:-0}
-  echo "help..."
+
+  echo "The Dynatrace OneAgent for PaaS installer enables Dynatrace monitoring in environments\n\
+where installing OneAgent for full-stack monitoring on cluster nodes is not an option.\n\
+\n\
+Usage:\n\
+\n\
+  ./$ME [flags]
+\n\
+Available Flags:\n\
+\n\
+  -h, --help: help for $ME\n\
+\n\
+Required Environment Variables:\n\
+\n\
+  DT_TENANT:    Your Dynatrace Tenant (Environment ID).\n\
+  DT_API_TOKEN: Your Dynatrace API Token.\n\
+\n\
+Optional Environment Variables:\n\
+\n\
+  DT_AGENT_BASE_URL:   A subdomain URL to your Dynatrace tenant. Defaults to '\$DT_TENANT.live.dynatrace.com'.\n\
+  DT_AGENT_PREFIX_DIR: The installation prefix location (to contain OneAgent in the 'dynatrace/oneagent' subdirectory). Defaults to '/var/lib'.\n\
+\n\
+  DT_AGENT_BITNESS:    Can be one of (all|32|64). Defaults to '64'.\n\
+  DT_AGENT_FOR:        Can be any of (all|apache|java|nginx|nodejs-npm|php|varnish|websphere) in a comma-separated list. Defaults to 'all'.\n\
+  DT_AGENT_APP:        The path to an application file. Currently only supported in combination with DT_AGENT_FOR=nodejs-npm.\n\
+\n\
+Examples:\n\
+\n\
+  General)\n\
+\n\
+  1. Installs OneAgent for all supported technologies into '/var/lib/dynatrace/oneagent':\n\
+  DT_TENANT=abc DT_API_TOKEN=123 ./$ME\n\
+\n\
+  2. Loads OneAgent with a Java application in '/app/app.jar':\n\
+  /var/lib/dynatrace/oneagent/dynatrace-agent64.sh java -jar /app/app.jar\n\
+\n\
+  You should always set DT_AGENT_FOR to a particular technology to reduce download time and space.\n\
+\n\
+  NodeJS)\n\
+\n\
+  Installs OneAgent for the NodeJS technology and integrates it into the application in '/app/index.js':\n\
+  DT_TENANT=abc DT_API_TOKEN=123 DT_AGENT_FOR=nodejs-npm DT_AGENT_APP=/app/index.js ./$ME"
+
   exit $EXIT_CODE
 }
 
@@ -94,6 +136,10 @@ validate_url() {
 }
 
 # Validate arguments.
+if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
+  help
+fi
+
 if [ -z "${DT_AGENT_BASE_URL+x}" -a -z "${DT_TENANT+x}" ] || [ -z "${DT_API_TOKEN+x}" ]; then
   help 1
 fi
