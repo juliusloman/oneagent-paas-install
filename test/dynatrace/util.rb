@@ -18,8 +18,8 @@ module Dynatrace
       result << cmd
     end
 
-    def self.get_fg_process(process, lifetime = 10)
-      return "((sleep #{lifetime} && killall #{process}) &); "
+    def self.cmd(cmd, process, lifetime = 10)
+      return "((sleep #{lifetime} && killall #{process}) &); #{cmd}"
     end
   end
 end
