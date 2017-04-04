@@ -16,7 +16,7 @@ opts = {
   DT_AGENT_PREFIX_DIR: '/tmp'
 }
 
-describe command(Dynatrace::Util::parse_cmd('~/paas-install.sh', opts)) do
+describe command(Dynatrace::Util::parse_cmd('~/dynatrace-oneagent-paas.sh', opts)) do
   its(:stdout) { should match /Installing to \/tmp.*Unpacking complete./m }
   its(:stdout) { should contain "Connecting to #{Dynatrace::Defaults::DT_AGENT_BASE_URL}" }
   its(:exit_status) { should eq 0 }

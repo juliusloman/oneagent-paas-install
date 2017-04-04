@@ -18,7 +18,7 @@ opts = {
   DT_AGENT_APP:        '/does-not-exist.js'
 }
 
-describe command(Dynatrace::Util::parse_cmd('~/paas-install.sh', opts)) do
+describe command(Dynatrace::Util::parse_cmd('~/dynatrace-oneagent-paas.sh', opts)) do
   its(:stderr) { should contain "failed to install Dynatrace OneAgent via npm: could not find /does-not-exist.js" }
   its(:exit_status) { should eq 1 }
 end
@@ -33,7 +33,7 @@ opts = {
   DT_AGENT_APP:        '/app/index.js'
 }
 
-describe command(Dynatrace::Util::parse_cmd('~/paas-install.sh', opts)) do
+describe command(Dynatrace::Util::parse_cmd('~/dynatrace-oneagent-paas.sh', opts)) do
   its(:exit_status) { should eq 0 }
 end
 

@@ -17,7 +17,7 @@ opts = {
   DT_AGENT_PREFIX_DIR: '/tmp'
 }
 
-describe command(Dynatrace::Util::parse_cmd('~/paas-install.sh', opts)) do
+describe command(Dynatrace::Util::parse_cmd('~/dynatrace-oneagent-paas.sh', opts)) do
   its(:exit_status) { should eq 0 }
 end
 
