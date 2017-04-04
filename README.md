@@ -5,7 +5,7 @@ The Dynatrace OneAgent for PaaS installer enables Dynatrace monitoring in enviro
 ## Usage
 
 ```
-./$ME [flags]
+./dynatrace-oneagent-paas.sh [flags]
 ```
 
 ## Available Flags
