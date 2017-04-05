@@ -22,12 +22,12 @@ Required Environment Variables:\n\
 \n\
 Optional Environment Variables:\n\
 \n\
-  DT_AGENT_BASE_URL:   A subdomain URL to your Dynatrace tenant. Defaults to '\$DT_TENANT.live.dynatrace.com'.\n\
-  DT_AGENT_PREFIX_DIR: The installation prefix location (to contain OneAgent in the 'dynatrace/oneagent' subdirectory). Defaults to '/var/lib'.\n\
+  DT_CLUSTER_HOST:        The hostname to your Dynatrace cluster. Defaults to '\$DT_TENANT.live.dynatrace.com'.\n\
+  DT_ONEAGENT_PREFIX_DIR: The installation prefix location (to contain OneAgent in the 'dynatrace/oneagent' subdirectory). Defaults to '/var/lib'.\n\
 \n\
-  DT_AGENT_BITNESS:    Can be one of (all|32|64). Defaults to '64'.\n\
-  DT_AGENT_FOR:        Can be any of (all|apache|java|nginx|nodejs-npm|php|varnish|websphere) in a comma-separated list. Defaults to 'all'.\n\
-  DT_AGENT_APP:        The path to an application file. Currently only supported in combination with DT_AGENT_FOR=nodejs-npm.\n\
+  DT_ONEAGENT_BITNESS:    Can be one of (all|32|64). Defaults to '64'.\n\
+  DT_ONEAGENT_FOR:        Can be any of (all|apache|java|nginx|nodejs-npm|php|varnish|websphere) in a comma-separated list. Defaults to 'all'.\n\
+  DT_ONEAGENT_APP:        The path to an application file. Currently only supported in combination with DT_ONEAGENT_FOR=nodejs-npm.\n\
 \n\
 Examples:\n\
 \n\
@@ -39,12 +39,12 @@ Examples:\n\
   2. Loads OneAgent with a Java application in '/app/app.jar':\n\
   /var/lib/dynatrace/oneagent/dynatrace-agent64.sh java -jar /app/app.jar\n\
 \n\
-  You should always set DT_AGENT_FOR to a particular technology to reduce download time and space.\n\
+  You should always set DT_ONEAGENT_FOR to a particular technology to minimize download time and space.\n\
 \n\
   NodeJS)\n\
 \n\
   Installs OneAgent for the NodeJS technology and integrates it into the application in '/app/index.js':\n\
-  DT_TENANT=abc DT_API_TOKEN=123 DT_AGENT_FOR=nodejs-npm DT_AGENT_APP=/app/index.js ./$ME"
+  DT_TENANT=abc DT_API_TOKEN=123 DT_ONEAGENT_FOR=nodejs-npm DT_ONEAGENT_APP=/app/index.js ./$ME"
 
   exit $EXIT_CODE
 }
@@ -84,7 +84,7 @@ install_oneagent() {
 
 install_oneagent_npm() {
   NODE_APP="$1"
-  NODE_AGENT="try { require('@dynatrace/oneagent') ({ server: '$DT_AGENT_BASE_URL', apitoken: '$DT_API_TOKEN' }); } catch(err) { console.log(err.toString()); }"
+  NODE_AGENT="try { require('@dynatrace/oneagent') ({ server: '$DT_CLUSTER_HOST', apitoken: '$DT_API_TOKEN' }); } catch(err) { console.log(err.toString()); }"
 
   if validate_command_exists npm; then
     if [ -f "$NODE_APP" ]; then
@@ -119,6 +119,10 @@ validate_command_exists() {
   return 0
 }
 
+validate_host() {
+  echo "$1" | grep -qE "^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$" >/dev/null 2>&1
+}
+
 validate_prefix_dir() {
   echo "$1" | grep -qE "^(/[[:alnum:]]+)+/?$" >/dev/null 2>&1
 }
@@ -131,21 +135,17 @@ validate_tenant() {
   echo "$1" | grep -qE "^[[:alnum:]]{8}$" >/dev/null 2>&1
 }
 
-validate_url() {
-  echo "$1" | grep -qE "^https://[-[:alnum:]\+&@#/%?=~_|!:,.;]*[-[:alnum:]\+&@#/%=~_|‌​]$" >/dev/null 2>&1
-}
-
 # Validate arguments.
 if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
   help
 fi
 
-if [ -z "${DT_AGENT_BASE_URL+x}" -a -z "${DT_TENANT+x}" ] || [ -z "${DT_API_TOKEN+x}" ]; then
+if [ -z "${DT_CLUSTER_HOST+x}" -a -z "${DT_TENANT+x}" ] || [ -z "${DT_API_TOKEN+x}" ]; then
   help 1
 fi
 
-if [ ! -z "${DT_AGENT_BASE_URL+x}" ]; then
-  validate_url "$DT_AGENT_BASE_URL" || die "failed to validate DT_AGENT_BASE_URL: $DT_AGENT_BASE_URL"
+if [ ! -z "${DT_CLUSTER_HOST+x}" ]; then
+  validate_host "$DT_CLUSTER_HOST" || die "failed to validate DT_CLUSTER_HOST: $DT_CLUSTER_HOST"
 fi
 
 if [ ! -z "${DT_TENANT+x}" ]; then
@@ -156,19 +156,19 @@ if [ ! -z "${DT_API_TOKEN+x}" ]; then
   validate_api_token "$DT_API_TOKEN" || die "failed to validate DT_API_TOKEN: $DT_API_TOKEN"
 fi
 
-DT_AGENT_BASE_URL="${DT_AGENT_BASE_URL:-https://${DT_TENANT}.live.dynatrace.com}"
-DT_AGENT_BITNESS="${DT_AGENT_BITNESS:-64}"
-DT_AGENT_FOR="${DT_AGENT_FOR:-all}"
-DT_AGENT_PREFIX_DIR="${DT_AGENT_PREFIX_DIR:-/var/lib}"
-DT_AGENT_URL="${DT_AGENT_URL:-${DT_AGENT_BASE_URL}/api/v1/deployment/installer/agent/unix/paas-sh/latest?Api-Token=${DT_API_TOKEN}&bitness=${DT_AGENT_BITNESS}&include=${DT_AGENT_FOR}}"
+DT_CLUSTER_HOST="${DT_CLUSTER_HOST:-${DT_TENANT}.live.dynatrace.com}"
+DT_ONEAGENT_BITNESS="${DT_ONEAGENT_BITNESS:-64}"
+DT_ONEAGENT_FOR="${DT_ONEAGENT_FOR:-all}"
+DT_ONEAGENT_PREFIX_DIR="${DT_ONEAGENT_PREFIX_DIR:-/var/lib}"
+DT_ONEAGENT_URL="${DT_ONEAGENT_URL:-https://${DT_CLUSTER_HOST}/api/v1/deployment/installer/agent/unix/paas-sh/latest?Api-Token=${DT_API_TOKEN}&bitness=${DT_ONEAGENT_BITNESS}&include=${DT_ONEAGENT_FOR}}"
 
-validate_bitness    "$DT_AGENT_BITNESS"    || die "failed to validate DT_AGENT_BITNESS: $DT_AGENT_BITNESS"
-validate_prefix_dir "$DT_AGENT_PREFIX_DIR" || die "failed to validate DT_AGENT_PREFIX_DIR: $DT_AGENT_PREFIX_DIR"
-validate_technology "$DT_AGENT_FOR"        || die "failed to validate DT_AGENT_FOR: $DT_AGENT_FOR"
+validate_bitness    "$DT_ONEAGENT_BITNESS"    || die "failed to validate DT_ONEAGENT_BITNESS: $DT_ONEAGENT_BITNESS"
+validate_prefix_dir "$DT_ONEAGENT_PREFIX_DIR" || die "failed to validate DT_ONEAGENT_PREFIX_DIR: $DT_ONEAGENT_PREFIX_DIR"
+validate_technology "$DT_ONEAGENT_FOR"        || die "failed to validate DT_ONEAGENT_FOR: $DT_ONEAGENT_FOR"
 
 # Download and install Dynatrace OneAgent.
-if [ "$DT_AGENT_FOR" = "nodejs-npm" ]; then
-  install_oneagent_npm "$DT_AGENT_APP"
+if [ "$DT_ONEAGENT_FOR" = "nodejs-npm" ]; then
+  install_oneagent_npm "$DT_ONEAGENT_APP"
 else
-  install_oneagent "$DT_AGENT_URL" "$DT_AGENT_PREFIX_DIR"
+  install_oneagent "$DT_ONEAGENT_URL" "$DT_ONEAGENT_PREFIX_DIR"
 fi

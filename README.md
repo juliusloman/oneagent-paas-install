@@ -25,18 +25,18 @@ The Dynatrace OneAgent for PaaS installer enables Dynatrace monitoring in enviro
 
 ### Installation
 
-| Name                  | Description                                                                                                              |
-|-----------------------|--------------------------------------------------------------------------------------------------------------------------|
-| `DT_AGENT_BASE_URL`   | A subdomain URL to your Dynatrace tenant. Defaults to `$DT_TENANT.live.dynatrace.com`.                                   |
-| `DT_AGENT_PREFIX_DIR` | The installation prefix location (to contain OneAgent in the `dynatrace/oneagent` subdirectory). Defaults to `/var/lib`. |
+| Name                     | Description                                                                                                              |
+|--------------------------|--------------------------------------------------------------------------------------------------------------------------|
+| `DT_CLUSTER_HOST`        | The hostname to your Dynatrace cluster. Defaults to `$DT_TENANT.live.dynatrace.com`.                                     |
+| `DT_ONEAGENT_PREFIX_DIR` | The installation prefix location (to contain OneAgent in the `dynatrace/oneagent` subdirectory). Defaults to `/var/lib`. |
 
 ### Technology Support
 
 | Name                  | Description                                                                                                                                               |
 |-----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `DT_AGENT_BITNESS`    | Can be one of (`all` \| `32` \| `64`). Defaults to `64`.                                                                                                  |
-| `DT_AGENT_FOR`        | Can be any of (`all` \| `apache` \| `java` \| `nginx` \| `nodejs-npm` \| `php` \| `varnish` \| `websphere`) in a comma-separated list. Defaults to `all`. |
-| `DT_AGENT_APP`        | The path to an application file. Currently only supported in combination with `DT_AGENT_FOR=nodejs-npm`.                                                  |
+| `DT_ONEAGENT_BITNESS` | Can be one of (`all` \| `32` \| `64`). Defaults to `64`.                                                                                                  |
+| `DT_ONEAGENT_FOR`     | Can be any of (`all` \| `apache` \| `java` \| `nginx` \| `nodejs-npm` \| `php` \| `varnish` \| `websphere`) in a comma-separated list. Defaults to `all`. |
+| `DT_ONEAGENT_APP`     | The path to an application file. Currently only supported in combination with `DT_ONEAGENT_FOR=nodejs-npm`.                                               |
 
 ## Examples
 
@@ -54,14 +54,14 @@ DT_TENANT=abc DT_API_TOKEN=123 ./dynatrace-oneagent-paas.sh
 /var/lib/dynatrace/oneagent/dynatrace-agent64.sh java -jar /app/app.jar
 ```
 
-You should always set `DT_AGENT_FOR` to a particular technology to reduce download time and space.
+You should always set `DT_ONEAGENT_FOR` to a particular technology to minimize download time and space.
 
 ##### NodeJS
 
 Installs OneAgent for the NodeJS technology and integrates it into the application in `/app/index.js`:
 
 ```
-DT_TENANT=abc DT_API_TOKEN=123 DT_AGENT_FOR=nodejs-npm DT_AGENT_APP=/app/index.js ./dynatrace-oneagent-paas.sh
+DT_TENANT=abc DT_API_TOKEN=123 DT_ONEAGENT_FOR=nodejs-npm DT_ONEAGENT_APP=/app/index.js ./dynatrace-oneagent-paas.sh
 ```
 
 ## Testing
