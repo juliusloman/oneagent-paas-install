@@ -32,11 +32,11 @@ The Dynatrace OneAgent for PaaS installer enables Dynatrace monitoring in enviro
 
 ### Technology Support
 
-| Name                  | Description                                                                                                                                               |
-|-----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `DT_ONEAGENT_BITNESS` | Can be one of (`all` \| `32` \| `64`). Defaults to `64`.                                                                                                  |
-| `DT_ONEAGENT_FOR`     | Can be any of (`all` \| `apache` \| `java` \| `nginx` \| `nodejs-npm` \| `php` \| `varnish` \| `websphere`) in a comma-separated list. Defaults to `all`. |
-| `DT_ONEAGENT_APP`     | The path to an application file. Currently only supported in combination with `DT_ONEAGENT_FOR=nodejs-npm`.                                               |
+| Name                  | Description                                                                                                                                           |
+|-----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `DT_ONEAGENT_BITNESS` | Can be one of (`all` \| `32` \| `64`). Defaults to `64`.                                                                                              |
+| `DT_ONEAGENT_FOR`     | Can be any of (`all` \| `apache` \| `java` \| `nginx` \| `nodejs` \| `php` \| `varnish` \| `websphere`) in a comma-separated list. Defaults to `all`. |
+| `DT_ONEAGENT_APP`     | The path to an application file. Currently only supported in combination with `DT_ONEAGENT_FOR=nodejs`.                                               |
 
 ## Examples
 
@@ -61,7 +61,7 @@ You should always set `DT_ONEAGENT_FOR` to a particular technology to minimize d
 Installs OneAgent for the NodeJS technology and integrates it into the application in `/app/index.js`:
 
 ```
-DT_TENANT=abc DT_API_TOKEN=123 DT_ONEAGENT_FOR=nodejs-npm DT_ONEAGENT_APP=/app/index.js ./dynatrace-oneagent-paas.sh
+DT_TENANT=abc DT_API_TOKEN=123 DT_ONEAGENT_FOR=nodejs DT_ONEAGENT_APP=/app/index.js ./dynatrace-oneagent-paas.sh
 ```
 
 ## Testing

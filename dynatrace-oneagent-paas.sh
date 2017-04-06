@@ -26,8 +26,8 @@ Optional Environment Variables:\n\
   DT_ONEAGENT_PREFIX_DIR: The installation prefix location (to contain OneAgent in the 'dynatrace/oneagent' subdirectory). Defaults to '/var/lib'.\n\
 \n\
   DT_ONEAGENT_BITNESS:    Can be one of (all|32|64). Defaults to '64'.\n\
-  DT_ONEAGENT_FOR:        Can be any of (all|apache|java|nginx|nodejs-npm|php|varnish|websphere) in a comma-separated list. Defaults to 'all'.\n\
-  DT_ONEAGENT_APP:        The path to an application file. Currently only supported in combination with DT_ONEAGENT_FOR=nodejs-npm.\n\
+  DT_ONEAGENT_FOR:        Can be any of (all|apache|java|nginx|nodejs|php|varnish|websphere) in a comma-separated list. Defaults to 'all'.\n\
+  DT_ONEAGENT_APP:        The path to an application file. Currently only supported in combination with DT_ONEAGENT_FOR=nodejs.\n\
 \n\
 Examples:\n\
 \n\
@@ -44,7 +44,7 @@ Examples:\n\
   NodeJS)\n\
 \n\
   Installs OneAgent for the NodeJS technology and integrates it into the application in '/app/index.js':\n\
-  DT_TENANT=abc DT_API_TOKEN=123 DT_ONEAGENT_FOR=nodejs-npm DT_ONEAGENT_APP=/app/index.js ./$ME"
+  DT_TENANT=abc DT_API_TOKEN=123 DT_ONEAGENT_FOR=nodejs DT_ONEAGENT_APP=/app/index.js ./$ME"
 
   exit $EXIT_CODE
 }
@@ -82,24 +82,17 @@ install_oneagent() {
   rm -f "${FILE}"
 }
 
-install_oneagent_npm() {
+integrate_oneagent_nodejs() {
   NODE_APP="$1"
-  NODE_AGENT="try { require('@dynatrace/oneagent') ({ server: '$DT_CLUSTER_HOST', apitoken: '$DT_API_TOKEN' }); } catch(err) { console.log(err.toString()); }"
+  NODE_AGENT="try { require('$DT_ONEAGENT_PREFIX_DIR/dynatrace/oneagent/agent/bin/any/onenodeloader.js') ({ server: '$DT_CLUSTER_HOST', apitoken: '$DT_API_TOKEN' }); } catch(err) { console.log(err.toString()); }"
 
-  if validate_command_exists npm; then
-    if [ -f "$NODE_APP" ]; then
-      cd `dirname "$NODE_APP"`
-      npm install @dynatrace/oneagent
-
-      # Backup the user's application.
-      cp "$NODE_APP" "$NODE_APP.bak"
-      # Prepend the node agent to the user's application.
-      echo "$NODE_AGENT\n\n$(cat $NODE_APP)" > "$NODE_APP"
-    else
-      die "failed to install Dynatrace OneAgent via npm: could not find $NODE_APP"
-    fi
+  if [ -f "$NODE_APP" ]; then
+    # Backup the user's application.
+    cp "$NODE_APP" "$NODE_APP.bak"
+    # Prepend the node agent to the user's application.
+    echo "$NODE_AGENT\n\n$(cat $NODE_APP)" > "$NODE_APP"
   else
-    die "failed to install Dynatrace OneAgent via npm: npm is not available"
+    die "failed to install Dynatrace OneAgent: could not find $NODE_APP"
   fi
 }
 
@@ -128,7 +121,7 @@ validate_prefix_dir() {
 }
 
 validate_technology() {
-  echo "$1" | grep -qiE "^(all|apache|java|nginx|nodejs-npm|php|varnish|websphere)$" >/dev/null 2>&1
+  echo "$1" | grep -qiE "^(all|apache|java|nginx|nodejs|php|varnish|websphere)$" >/dev/null 2>&1
 }
 
 validate_tenant() {
@@ -167,8 +160,8 @@ validate_prefix_dir "$DT_ONEAGENT_PREFIX_DIR" || die "failed to validate DT_ONEA
 validate_technology "$DT_ONEAGENT_FOR"        || die "failed to validate DT_ONEAGENT_FOR: $DT_ONEAGENT_FOR"
 
 # Download and install Dynatrace OneAgent.
-if [ "$DT_ONEAGENT_FOR" = "nodejs-npm" ]; then
-  install_oneagent_npm "$DT_ONEAGENT_APP"
-else
-  install_oneagent "$DT_ONEAGENT_URL" "$DT_ONEAGENT_PREFIX_DIR"
+install_oneagent "$DT_ONEAGENT_URL" "$DT_ONEAGENT_PREFIX_DIR"
+
+if [ "$DT_ONEAGENT_FOR" = "nodejs" ]; then
+  integrate_oneagent_nodejs "$DT_ONEAGENT_APP"
 fi

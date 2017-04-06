@@ -12,22 +12,22 @@ require ENV['HOME'] + '/test/dynatrace/util.rb'
 opts = {
   DT_CLUSTER_HOST:        Dynatrace::Defaults::DT_CLUSTER_HOST,
   DT_API_TOKEN:           Dynatrace::Defaults::DT_API_TOKEN,
-  DT_ONEAGENT_FOR:        'nodejs-npm',
+  DT_ONEAGENT_FOR:        'nodejs',
   DT_ONEAGENT_BITNESS:    '64',
   DT_ONEAGENT_PREFIX_DIR: '/tmp',
   DT_ONEAGENT_APP:        '/does-not-exist.js'
 }
 
 describe command(Dynatrace::Util::parse_cmd('~/dynatrace-oneagent-paas.sh', opts)) do
-  its(:stderr) { should contain "failed to install Dynatrace OneAgent via npm: could not find /does-not-exist.js" }
+  its(:stderr) { should contain "failed to install Dynatrace OneAgent: could not find /does-not-exist.js" }
   its(:exit_status) { should eq 1 }
 end
 
 # Test installer: NodeJS, 64-bit, into /tmp)
 opts = {
-  DT_CLUSTER_HOST:   Dynatrace::Defaults::DT_CLUSTER_HOST,
-  DT_API_TOKEN:        Dynatrace::Defaults::DT_API_TOKEN,
-  DT_ONEAGENT_FOR:        'nodejs-npm',
+  DT_CLUSTER_HOST:        Dynatrace::Defaults::DT_CLUSTER_HOST,
+  DT_API_TOKEN:           Dynatrace::Defaults::DT_API_TOKEN,
+  DT_ONEAGENT_FOR:        'nodejs',
   DT_ONEAGENT_BITNESS:    '64',
   DT_ONEAGENT_PREFIX_DIR: '/tmp',
   DT_ONEAGENT_APP:        '/app/index.js'
@@ -38,14 +38,14 @@ describe command(Dynatrace::Util::parse_cmd('~/dynatrace-oneagent-paas.sh', opts
 end
 
 describe file("/app/index.js") do
-  its(:content) { should match Regexp.new(Regexp.escape("try { require('@dynatrace/oneagent') ({ server: '#{Dynatrace::Defaults::DT_CLUSTER_HOST}', apitoken: '#{Dynatrace::Defaults::DT_API_TOKEN}' }); } catch(err) { console.log(err.toString()); }")) }
+  its(:content) { should match Regexp.new(Regexp.escape("try { require('/tmp/dynatrace/oneagent/agent/bin/any/onenodeloader.js') ({ server: '#{Dynatrace::Defaults::DT_CLUSTER_HOST}', apitoken: '#{Dynatrace::Defaults::DT_API_TOKEN}' }); } catch(err) { console.log(err.toString()); }")) }
 end
 
 describe file("/app/index.js.bak") do
-  its(:content) { should_not match Regexp.new(Regexp.escape("try { require('@dynatrace/oneagent') ({ server: '#{Dynatrace::Defaults::DT_CLUSTER_HOST}', apitoken: '#{Dynatrace::Defaults::DT_API_TOKEN}' }); } catch(err) { console.log(err.toString()); }")) }
+  its(:content) { should_not match Regexp.new(Regexp.escape("try { require('/tmp/dynatrace/oneagent/agent/bin/any/onenodeloader.js') ({ server: '#{Dynatrace::Defaults::DT_CLUSTER_HOST}', apitoken: '#{Dynatrace::Defaults::DT_API_TOKEN}' }); } catch(err) { console.log(err.toString()); }")) }
 end
 
 describe command(Dynatrace::Util::cmd('node /app/index.js', 'node')) do
   its(:stderr) { should match /Agent version.*1.*/ }
-  its(:stderr) { should match /Hooking to module load procedure/ }
+  its(:stderr) { should contain "connected to #{Dynatrace::Defaults::DT_CLUSTER_HOST}" }
 end
