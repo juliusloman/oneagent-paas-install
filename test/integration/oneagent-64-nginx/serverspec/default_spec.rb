@@ -27,5 +27,6 @@ end
 
 # Cannot use file() resource here, since only command() accepts a wildcard pattern
 describe command('cat ' + Dynatrace::OneAgent::NGINX::get_monitored_process_log) do
-  its(:stdout) { should match /Nginx successfully instrumented/ }
+  its(:stdout) { should contain "Starting Nginx agent" }
+  its(:stdout) { should contain "Nginx successfully instrumented" }
 end
