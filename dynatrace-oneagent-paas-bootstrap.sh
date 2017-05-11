@@ -1,5 +1,4 @@
 #!/bin/sh -e
-
 die() {
   echo >&2 "${ME}: $@"
   exit 1
