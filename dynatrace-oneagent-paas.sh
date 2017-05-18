@@ -97,8 +97,7 @@ integrate_oneagent_nodejs() {
 }
 
 validate_api_token() {
-  return 0
-  # echo "$1" | grep -qE "^[[:alnum:]-_]+$" >/dev/null 2>&1
+  echo "$1" | grep -qE "^[[:alnum:]_-]+$" >/dev/null 2>&1
 }
 
 validate_bitness() {
