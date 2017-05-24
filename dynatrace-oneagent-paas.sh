@@ -49,6 +49,25 @@ Examples:\n\
   exit $EXIT_CODE
 }
 
+build_oneagent_url() {
+  DT_CLUSTER_HOST="$1"
+  DT_API_TOKEN="$2"
+  DT_ONEAGENT_BITNESS="$3"
+  DT_ONEAGENT_FOR="$4"
+
+  DT_ONEAGENT_URL="https://${DT_CLUSTER_HOST}/api/v1/deployment/installer/agent/unix/paas-sh/latest?Api-Token=${DT_API_TOKEN}&bitness=${DT_ONEAGENT_BITNESS}"
+
+  DT_ONEAGENT_FOR_SEP=,
+  if validate_contains "$DT_ONEAGENT_FOR" "$DT_ONEAGENT_FOR_SEP"; then
+    IFS="$DT_ONEAGENT_FOR_SEP"
+    for technology in $DT_ONEAGENT_FOR; do
+      DT_ONEAGENT_URL="$DT_ONEAGENT_URL&include=$technology"
+    done
+  else
+    DT_ONEAGENT_URL="$DT_ONEAGENT_URL&include=$DT_ONEAGENT_FOR"
+  fi
+}
+
 die() {
   echo >&2 "${ME}: $@"
   exit 1
@@ -112,6 +131,10 @@ validate_command_exists() {
   return 0
 }
 
+validate_contains() {
+  echo "$1" | grep -qE "$2" >/dev/null 2>&1
+}
+
 validate_host() {
   echo "$1" | grep -qE "^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$" >/dev/null 2>&1
 }
@@ -121,7 +144,8 @@ validate_prefix_dir() {
 }
 
 validate_technology() {
-  echo "$1" | grep -qiE "^(all|apache|java|nginx|nodejs|php|varnish|websphere)$" >/dev/null 2>&1
+  REGEX_TECH_GROUP="(all|apache|java|nginx|nodejs|php|varnish|websphere)"
+  echo "$1" | grep -qiE "^($REGEX_TECH_GROUP,)*$REGEX_TECH_GROUP$" >/dev/null 2>&1
 }
 
 validate_tenant() {
@@ -153,11 +177,16 @@ DT_CLUSTER_HOST="${DT_CLUSTER_HOST:-${DT_TENANT}.live.dynatrace.com}"
 DT_ONEAGENT_BITNESS="${DT_ONEAGENT_BITNESS:-64}"
 DT_ONEAGENT_FOR="${DT_ONEAGENT_FOR:-all}"
 DT_ONEAGENT_PREFIX_DIR="${DT_ONEAGENT_PREFIX_DIR:-/var/lib}"
-DT_ONEAGENT_URL="${DT_ONEAGENT_URL:-https://${DT_CLUSTER_HOST}/api/v1/deployment/installer/agent/unix/paas-sh/latest?Api-Token=${DT_API_TOKEN}&bitness=${DT_ONEAGENT_BITNESS}&include=${DT_ONEAGENT_FOR}}"
+DT_ONEAGENT_URL="${DT_ONEAGENT_URL}"
 
 validate_bitness    "$DT_ONEAGENT_BITNESS"    || die "failed to validate DT_ONEAGENT_BITNESS: $DT_ONEAGENT_BITNESS"
 validate_prefix_dir "$DT_ONEAGENT_PREFIX_DIR" || die "failed to validate DT_ONEAGENT_PREFIX_DIR: $DT_ONEAGENT_PREFIX_DIR"
 validate_technology "$DT_ONEAGENT_FOR"        || die "failed to validate DT_ONEAGENT_FOR: $DT_ONEAGENT_FOR"
+
+# Build Dynatrace OneAgent download URL.
+if [ -z "$DT_ONEAGENT_URL" ]; then
+  build_oneagent_url "$DT_CLUSTER_HOST" "$DT_API_TOKEN" "$DT_ONEAGENT_BITNESS" "$DT_ONEAGENT_FOR"
+fi
 
 # Download and install Dynatrace OneAgent.
 install_oneagent "$DT_ONEAGENT_URL" "$DT_ONEAGENT_PREFIX_DIR"
