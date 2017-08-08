@@ -1,2 +1,6 @@
 #!/bin/sh
-sudo apt-get install -y openjdk-8-jre-headless
+sudo apt-get install -y git openjdk-8-jdk-headless
+
+git clone https://github.com/spring-projects/spring-petclinic.git
+mv /spring-petclinic /app
+cd /app; ./mvnw package

@@ -4,7 +4,7 @@ module Dynatrace
     BITNESS_64 = 64
 
     def self.get_monitored_process_cmd(cmd, bitness = Dynatrace::OneAgent::BITNESS_64)
-      return "/tmp/dynatrace/oneagent/dynatrace-agent#{bitness}.sh #{cmd}"
+      return "/tmp/dynatrace/oneagent/dynatrace-agent#{bitness}.sh sh -c '#{cmd}'"
     end
 
     class Apache
@@ -23,6 +23,12 @@ module Dynatrace
     class NGINX
       def self.get_monitored_process_log()
         return "/tmp/dynatrace/oneagent/log/nginx/ruxitagent_startup_nginx_*.log"
+      end
+    end
+
+    class SpringBootMavenPluginRunner
+      def self.get_monitored_process_log()
+        return "/tmp/dynatrace/oneagent/log/java/ruxitagent_org.apache.maven.wrapper.MavenWrapperMain_*.log"
       end
     end
   end

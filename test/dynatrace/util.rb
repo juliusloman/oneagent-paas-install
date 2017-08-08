@@ -18,8 +18,8 @@ module Dynatrace
       result << cmd
     end
 
-    def self.cmd(cmd, process, lifetime = 10)
-      return "((sleep #{lifetime} && killall #{process}) &); #{cmd}"
+    def self.cmd(cmd, stop_cmd, ttl = 10)
+      "((sleep #{ttl} && #{stop_cmd}) &); #{cmd}"
     end
   end
 end

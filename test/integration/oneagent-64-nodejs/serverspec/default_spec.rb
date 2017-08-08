@@ -45,7 +45,7 @@ describe file("/app/index.js.bak") do
   its(:content) { should_not match Regexp.new(Regexp.escape("try { require('/tmp/dynatrace/oneagent/agent/bin/any/onenodeloader.js') ({ server: '#{Dynatrace::Defaults::DT_CLUSTER_HOST}', apitoken: '#{Dynatrace::Defaults::DT_API_TOKEN}' }); } catch(err) { console.log(err.toString()); }")) }
 end
 
-describe command(Dynatrace::Util::cmd('node /app/index.js', 'node')) do
+describe command(Dynatrace::Util::cmd('node /app/index.js', 'killall node')) do
   its(:stderr) { should match /Agent version.*1.*/ }
   its(:stderr) { should contain "connected to #{Dynatrace::Defaults::DT_CLUSTER_HOST}" }
 end

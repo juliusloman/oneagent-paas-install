@@ -21,7 +21,7 @@ describe command(Dynatrace::Util::parse_cmd('~/dynatrace-oneagent-paas.sh', opts
   its(:exit_status) { should eq 0 }
 end
 
-describe command(Dynatrace::Util::cmd(Dynatrace::OneAgent::get_monitored_process_cmd('/opt/docker/bin/service.d/httpd.sh'), 'apache2')) do
+describe command(Dynatrace::Util::cmd(Dynatrace::OneAgent::get_monitored_process_cmd('/opt/docker/bin/service.d/httpd.sh'), 'killall apache2')) do
   its(:exit_status) { should eq 0 }
 end
 

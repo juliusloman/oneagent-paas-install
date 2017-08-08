@@ -21,11 +21,13 @@ describe command(Dynatrace::Util::parse_cmd('~/dynatrace-oneagent-paas.sh', opts
   its(:exit_status) { should eq 0 }
 end
 
-describe command(Dynatrace::OneAgent::get_monitored_process_cmd('java -version')) do
-  its(:exit_status) { should eq 0 }
+describe command(Dynatrace::Util::cmd(Dynatrace::OneAgent::get_monitored_process_cmd('cd /app && ./mvnw spring-boot:run'), 'killall java', 20)) do
+  its(:exit_status) { should eq 143 }
 end
 
-describe file(Dynatrace::OneAgent::Java::get_monitored_process_log) do
-  it { should exist }
-  its(:content) { should_not match /Injection of java agent failed/ }
+# Cannot use file() resource here, since only command() accepts a wildcard pattern
+describe command('cat ' + Dynatrace::OneAgent::SpringBootMavenPluginRunner::get_monitored_process_log) do
+  its(:stdout) { should_not match /Injection of java agent failed/ }
+  its(:stdout) { should match /.*Java Agent Version.*1\..*/ }
+  its(:stdout) { should match /.*Enabled instrumentation of Java bytecode.*/ }
 end
