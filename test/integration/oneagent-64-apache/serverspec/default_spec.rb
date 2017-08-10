@@ -21,12 +21,14 @@ describe command(Dynatrace::Util::parse_cmd('~/dynatrace-oneagent-paas.sh', opts
   its(:exit_status) { should eq 0 }
 end
 
-describe command(Dynatrace::Util::cmd(Dynatrace::OneAgent::get_monitored_process_cmd('/opt/docker/bin/service.d/httpd.sh'), 'killall apache2')) do
-  its(:exit_status) { should eq 0 }
+# Need to kill httpd first since, otherwise, ports will be blocked when starting it again with Dynatrace OneAgent
+describe command('killall httpd; ' + Dynatrace::Util::cmd(Dynatrace::OneAgent::get_monitored_process_cmd('/usr/local/apache2/bin/httpd -DFOREGROUND'), 'killall httpd')) do
+  its(:exit_status) { should eq 143 }
 end
 
 # Cannot use file() resource here, since only command() accepts a wildcard pattern
 describe command('cat ' + Dynatrace::OneAgent::Apache::get_monitored_process_log) do
   its(:stdout) { should match /Loading agent/ }
-  its(:stdout) { should match /Agent name.*Apache.*/ }
+  its(:stdout) { should match /Agent name.*Apache/ }
+  its(:stdout) { should match /Instrumenting module hooks finished successfully./ }
 end

@@ -25,7 +25,9 @@ suites:
 - name: oneagent-64
 - name: oneagent-64-apache
   driver_config:
-    image: webdevops/apache:ubuntu-16.04
+    image: httpd:2.2
+    run_command:
+    - apt update && apt install -y sudo curl psmisc ruby unzip
 - name: oneagent-64-java
 - name: oneagent-64-nginx
 - name: oneagent-64-nodejs
