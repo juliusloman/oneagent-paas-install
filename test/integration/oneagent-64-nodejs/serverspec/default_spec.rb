@@ -46,6 +46,6 @@ describe file("/app/index.js.bak") do
 end
 
 describe command(Dynatrace::Util::cmd('node /app/index.js', 'killall node')) do
-  its(:stderr) { should match /Agent version.*1.*/ }
+  its(:stderr) { should match /.*Agent version.*1\..*/ }
   its(:stderr) { should contain "connected to #{Dynatrace::Defaults::DT_CLUSTER_HOST}" }
 end
