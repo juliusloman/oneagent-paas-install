@@ -28,6 +28,6 @@ end
 # Cannot use file() resource here, since only command() accepts a wildcard pattern
 describe command('cat ' + Dynatrace::OneAgent::SpringBootMavenPluginRunner::get_monitored_process_log) do
   its(:stdout) { should_not match /Injection of java agent failed/ }
-  its(:stdout) { should match /.*Java Agent Version.*1\..*/ }
-  its(:stdout) { should match /.*Enabled instrumentation of Java bytecode.*/ }
+  its(:stdout) { should match /Java Agent Version.*1\./ }
+  its(:stdout) { should match /Enabled instrumentation of Java bytecode/ }
 end
