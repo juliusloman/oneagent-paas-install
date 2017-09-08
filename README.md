@@ -81,6 +81,10 @@ bundle install
 kitchen test
 ```
 
+## Disclaimer
+
+This module is supported by the Dynatrace Innovation Lab. Please use the issue tracker to report any problems or ask questions.
+
 ## License
 
 Licensed under the MIT License. See the LICENSE file for details.
