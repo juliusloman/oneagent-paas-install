@@ -25,10 +25,10 @@ The Dynatrace OneAgent for PaaS installer enables Dynatrace monitoring in enviro
 
 ### Installation
 
-| Name                     | Description                                                                                                              |
-|--------------------------|--------------------------------------------------------------------------------------------------------------------------|
-| `DT_CLUSTER_HOST`        | The hostname to your Dynatrace cluster. Defaults to `$DT_TENANT.live.dynatrace.com`.                                     |
-| `DT_ONEAGENT_PREFIX_DIR` | The installation prefix location (to contain OneAgent in the `dynatrace/oneagent` subdirectory). Defaults to `/var/lib`. |
+| Name                     | Description                                                                                                                                   |
+|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| `DT_CLUSTER_HOST`        | The hostname to your Dynatrace cluster. Defaults to `$DT_TENANT.live.dynatrace.com`. Override if you are running a Dynatrace Managed cluster. |
+| `DT_ONEAGENT_PREFIX_DIR` | The installation prefix location (to contain OneAgent in the `dynatrace/oneagent` subdirectory). Defaults to `/var/lib`.                      |
 
 ### Technology Support
 

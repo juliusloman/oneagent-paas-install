@@ -22,7 +22,7 @@ Required Environment Variables:\n\
 \n\
 Optional Environment Variables:\n\
 \n\
-  DT_CLUSTER_HOST:        The hostname to your Dynatrace cluster. Defaults to '\$DT_TENANT.live.dynatrace.com'.\n\
+  DT_CLUSTER_HOST:        The hostname to your Dynatrace cluster. Defaults to '\$DT_TENANT.live.dynatrace.com'. Override if you are running a Dynatrace Managed cluster.\n\
   DT_ONEAGENT_PREFIX_DIR: The installation prefix location (to contain OneAgent in the 'dynatrace/oneagent' subdirectory). Defaults to '/var/lib'.\n\
 \n\
   DT_ONEAGENT_BITNESS:    Can be one of (all|32|64). Defaults to '64'.\n\
@@ -51,11 +51,19 @@ Examples:\n\
 
 build_oneagent_url() {
   DT_CLUSTER_HOST="$1"
-  DT_API_TOKEN="$2"
-  DT_ONEAGENT_BITNESS="$3"
-  DT_ONEAGENT_FOR="$4"
+  DT_TENANT="$2"
+  DT_API_TOKEN="$3"
+  DT_ONEAGENT_BITNESS="$4"
+  DT_ONEAGENT_FOR="$5"
 
-  DT_ONEAGENT_URL="https://${DT_CLUSTER_HOST}/api/v1/deployment/installer/agent/unix/paas-sh/latest?Api-Token=${DT_API_TOKEN}&bitness=${DT_ONEAGENT_BITNESS}"
+  DT_API_URL="https://"
+  if is_dynatrace_managed_cluster_host "$DT_CLUSTER_HOST"; then
+    DT_API_URL="${DT_API_URL}${DT_CLUSTER_HOST}/e/${DT_TENANT}/api"
+  else
+    DT_API_URL="${DT_API_URL}${DT_CLUSTER_HOST}/api"
+  fi
+
+  DT_ONEAGENT_URL="${DT_API_URL}/v1/deployment/installer/agent/unix/paas-sh/latest?Api-Token=${DT_API_TOKEN}&bitness=${DT_ONEAGENT_BITNESS}"
 
   DT_ONEAGENT_FOR_SEP=,
   if validate_contains "$DT_ONEAGENT_FOR" "$DT_ONEAGENT_FOR_SEP"; then
@@ -115,6 +123,10 @@ integrate_oneagent_nodejs() {
   fi
 }
 
+is_dynatrace_managed_cluster_host() {
+  echo "$1" | grep -qEv "live.dynatrace.com" >/dev/null 2>&1
+}
+
 validate_api_token() {
   echo "$1" | grep -qE "^[[:alnum:]_-]+$" >/dev/null 2>&1
 }
@@ -149,7 +161,7 @@ validate_technology() {
 }
 
 validate_tenant() {
-  echo "$1" | grep -qE "^[[:alnum:]]{8}$" >/dev/null 2>&1
+  echo "$1" | grep -qE "^[[:alnum:]_-]{8,}$" >/dev/null 2>&1
 }
 
 # Validate arguments.
@@ -185,12 +197,14 @@ validate_technology "$DT_ONEAGENT_FOR"        || die "failed to validate DT_ONEA
 
 # Build Dynatrace OneAgent download URL.
 if [ -z "$DT_ONEAGENT_URL" ]; then
-  build_oneagent_url "$DT_CLUSTER_HOST" "$DT_API_TOKEN" "$DT_ONEAGENT_BITNESS" "$DT_ONEAGENT_FOR"
+  build_oneagent_url "$DT_CLUSTER_HOST" "$DT_TENANT" "$DT_API_TOKEN" "$DT_ONEAGENT_BITNESS" "$DT_ONEAGENT_FOR"
 fi
+
+echo URL: "$DT_ONEAGENT_URL"
 
 # Download and install Dynatrace OneAgent.
-install_oneagent "$DT_ONEAGENT_URL" "$DT_ONEAGENT_PREFIX_DIR"
+#install_oneagent "$DT_ONEAGENT_URL" "$DT_ONEAGENT_PREFIX_DIR"
 
-if [ "$DT_ONEAGENT_FOR" = "nodejs" ]; then
-  integrate_oneagent_nodejs "$DT_ONEAGENT_APP"
-fi
+#if [ "$DT_ONEAGENT_FOR" = "nodejs" ]; then
+#  integrate_oneagent_nodejs "$DT_ONEAGENT_APP"
+#fi
