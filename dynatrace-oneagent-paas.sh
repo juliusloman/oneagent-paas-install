@@ -87,10 +87,10 @@ download_oneagent() {
 
   # Test which of the following commands is available.
   cmd=
-  if validate_command_exists curl; then
-    cmd='curl -sSL'
-  elif validate_command_exists wget; then
+  if validate_command_exists wget; then
     cmd='wget -qO-'
+  elif validate_command_exists curl; then
+    cmd='curl -sSL'
   else
     die "failed to download Dynatrace OneAgent: neither curl nor wget are available"
   fi
