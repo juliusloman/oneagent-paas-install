@@ -200,11 +200,9 @@ if [ -z "$DT_ONEAGENT_URL" ]; then
   build_oneagent_url "$DT_CLUSTER_HOST" "$DT_TENANT" "$DT_API_TOKEN" "$DT_ONEAGENT_BITNESS" "$DT_ONEAGENT_FOR"
 fi
 
-echo URL: "$DT_ONEAGENT_URL"
-
 # Download and install Dynatrace OneAgent.
-#install_oneagent "$DT_ONEAGENT_URL" "$DT_ONEAGENT_PREFIX_DIR"
+install_oneagent "$DT_ONEAGENT_URL" "$DT_ONEAGENT_PREFIX_DIR"
 
-#if [ "$DT_ONEAGENT_FOR" = "nodejs" ]; then
-#  integrate_oneagent_nodejs "$DT_ONEAGENT_APP"
-#fi
+if [ "$DT_ONEAGENT_FOR" = "nodejs" ]; then
+  integrate_oneagent_nodejs "$DT_ONEAGENT_APP"
+fi
