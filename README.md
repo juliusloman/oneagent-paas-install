@@ -42,17 +42,17 @@ The Dynatrace OneAgent for PaaS installer enables Dynatrace monitoring in enviro
 
 ### General
 
-1) Installs OneAgent for all supported technologies into `/var/lib/dynatrace/oneagent`:
+1. Installs OneAgent for all supported technologies into `/var/lib/dynatrace/oneagent`:
 
 ```
 DT_TENANT=abc DT_API_TOKEN=123 ./dynatrace-oneagent-paas.sh
 ```
 
-2) Loads OneAgent with your application
+2. Loads OneAgent with your application
 
 Each of the following examples follows the same pattern: you simply integrate OneAgent into your application by prefixing your container command with a script `dynatrace-agent${DT_ONEAGENT_BITNESS}` in `${DT_ONEAGENT_PREFIX_DIR}/dynatrace/oneagent`. **Note**: the actual container command really depends on the inner workings of your container. If you're unsure about which command your container eventually runs, you should inspect your `Dockerfile` or the output of `docker inspect` and search for an entry that begins with `cmd:`.
 
-    2.1) Examples: Apache HTTP Server:
+    1. Examples: Apache HTTP Server:
 
     ```
     /var/lib/dynatrace/oneagent/dynatrace-agent64.sh apache2-foreground
@@ -62,7 +62,7 @@ Each of the following examples follows the same pattern: you simply integrate On
     /var/lib/dynatrace/oneagent/dynatrace-agent64.sh httpd -DFOREGROUND
     ```
 
-    2.2) Example: Java application in `/app/app.jar`:
+    2. Example: Java application in `/app/app.jar`:
 
     ```
     /var/lib/dynatrace/oneagent/dynatrace-agent64.sh java -jar /app/app.jar
