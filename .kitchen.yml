@@ -31,3 +31,10 @@ suites:
 - name: oneagent-64-java
 - name: oneagent-64-nginx
 - name: oneagent-64-nodejs
+- name: oneagent-64-php-apache
+  driver_config:
+    image: php:7-apache
+    run_command:
+    - apt update && apt install -y sudo curl psmisc ruby unzip
+    - echo "ServerName localhost" | tee /etc/apache2/conf-available/fqdn.conf
+    - a2enconf fqdn.conf

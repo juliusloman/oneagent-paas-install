@@ -26,6 +26,12 @@ module Dynatrace
       end
     end
 
+    class PHP
+      def self.get_monitored_process_log()
+        return "/tmp/dynatrace/oneagent/log/php/ruxitagent_Apache_Web_Server_apache2_*.log"
+      end
+    end
+
     class SpringBootMavenPluginRunner
       def self.get_monitored_process_log()
         return "/tmp/dynatrace/oneagent/log/java/ruxitagent_org.apache.maven.wrapper.MavenWrapperMain_*.log"
