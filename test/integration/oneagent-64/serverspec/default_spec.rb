@@ -9,8 +9,8 @@ require ENV['HOME'] + '/test/dynatrace/util.rb'
 
 # Test installer: all technologies, 64-bit, into /tmp)
 opts = {
-  DT_CLUSTER_HOST:        Dynatrace::Defaults::DT_CLUSTER_HOST,
   DT_API_TOKEN:           Dynatrace::Defaults::DT_API_TOKEN,
+  DT_API_URL:             Dynatrace::Defaults::DT_API_URL,
   DT_ONEAGENT_FOR:        'all',
   DT_ONEAGENT_BITNESS:    '64',
   DT_ONEAGENT_PREFIX_DIR: '/tmp'
@@ -18,7 +18,7 @@ opts = {
 
 describe command(Dynatrace::Util::parse_cmd('~/dynatrace-oneagent-paas.sh', opts)) do
   its(:stdout) { should match /Installing to \/tmp.*Unpacking complete./m }
-  its(:stdout) { should contain "Connecting to https://#{Dynatrace::Defaults::DT_CLUSTER_HOST}" }
+  its(:stdout) { should contain "Connecting to #{Dynatrace::Defaults::DT_API_URL}" }
   its(:exit_status) { should eq 0 }
 end
 

@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/sh
 ME=$(basename "$0")
 
 help() {
@@ -22,7 +22,7 @@ Required Environment Variables:\n\
 \n\
 Optional Environment Variables:\n\
 \n\
-  DT_CLUSTER_HOST:        The hostname to your Dynatrace cluster. Defaults to '\$DT_TENANT.live.dynatrace.com'. Override if you are running a Dynatrace Managed cluster.\n\
+  DT_CLUSTER_HOST:        The hostname to your Dynatrace cluster. Defaults to 'live.dynatrace.com'. Override if you are running a Dynatrace Managed cluster.\n\
   DT_ONEAGENT_PREFIX_DIR: The installation prefix location (to contain OneAgent in the 'dynatrace/oneagent' subdirectory). Defaults to '/var/lib'.\n\
 \n\
   DT_ONEAGENT_BITNESS:    Can be one of (all|32|64). Defaults to '64'.\n\
@@ -49,19 +49,23 @@ Examples:\n\
   exit $EXIT_CODE
 }
 
-build_oneagent_url() {
+build_api_url() {
   DT_CLUSTER_HOST="$1"
   DT_TENANT="$2"
-  DT_API_TOKEN="$3"
-  DT_ONEAGENT_BITNESS="$4"
-  DT_ONEAGENT_FOR="$5"
 
   DT_API_URL="https://"
-  if is_dynatrace_managed_cluster_host "$DT_CLUSTER_HOST"; then
-    DT_API_URL="${DT_API_URL}${DT_CLUSTER_HOST}/e/${DT_TENANT}/api"
+  if is_dynatrace_saas_cluster_host "$DT_CLUSTER_HOST"; then
+    DT_API_URL="${DT_API_URL}${DT_TENANT}.${DT_CLUSTER_HOST}/api"
   else
-    DT_API_URL="${DT_API_URL}${DT_CLUSTER_HOST}/api"
+    DT_API_URL="${DT_API_URL}${DT_CLUSTER_HOST}/e/${DT_TENANT}/api"
   fi
+}
+
+build_oneagent_download_url() {
+  DT_API_URL="$1"
+  DT_API_TOKEN="$2"
+  DT_ONEAGENT_BITNESS="$3"
+  DT_ONEAGENT_FOR="$4"
 
   DT_ONEAGENT_URL="${DT_API_URL}/v1/deployment/installer/agent/unix/paas-sh/latest?Api-Token=${DT_API_TOKEN}&bitness=${DT_ONEAGENT_BITNESS}"
 
@@ -85,18 +89,21 @@ download_oneagent() {
   URL="$1"
   FILE="$2"
 
-  # Test which of the following commands is available.
-  cmd=
+  echo "Connecting to $URL"
+
+  ERROR=""
   if validate_command_exists wget; then
-    cmd='wget -qO-'
+    ERROR=`wget -nv -O "${FILE}" "${URL}" 2>&1`
   elif validate_command_exists curl; then
-    cmd='curl -sSL'
+    ERROR=`curl -fsSL -o "${FILE}" "${URL}" 2>&1`
   else
     die "failed to download Dynatrace OneAgent: neither curl nor wget are available"
   fi
 
-  echo "Connecting to $URL"
-  $cmd "${URL}" > ${FILE}
+  if [ $? -ne 0 ]; then
+    rm -f "${FILE}"
+    die "${ERROR}"
+  fi
 }
 
 install_oneagent() {
@@ -123,8 +130,8 @@ integrate_oneagent_nodejs() {
   fi
 }
 
-is_dynatrace_managed_cluster_host() {
-  echo "$1" | grep -qEv "live.dynatrace.com" >/dev/null 2>&1
+is_dynatrace_saas_cluster_host() {
+  echo "$1" | grep -qE "live.dynatrace.com" >/dev/null 2>&1
 }
 
 validate_api_token() {
@@ -169,7 +176,7 @@ if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
   help
 fi
 
-if [ -z "${DT_CLUSTER_HOST+x}" -a -z "${DT_TENANT+x}" ] || [ -z "${DT_API_TOKEN+x}" ]; then
+if [ -z "${DT_API_URL+x}" -a -z "${DT_TENANT+x}" ] || [ -z "${DT_API_TOKEN+x}" ]; then
   help 1
 fi
 
@@ -185,20 +192,23 @@ if [ ! -z "${DT_API_TOKEN+x}" ]; then
   validate_api_token "$DT_API_TOKEN" || die "failed to validate DT_API_TOKEN: $DT_API_TOKEN"
 fi
 
-DT_CLUSTER_HOST="${DT_CLUSTER_HOST:-${DT_TENANT}.live.dynatrace.com}"
+DT_CLUSTER_HOST="${DT_CLUSTER_HOST:-live.dynatrace.com}"
 DT_ONEAGENT_BITNESS="${DT_ONEAGENT_BITNESS:-64}"
 DT_ONEAGENT_FOR="${DT_ONEAGENT_FOR:-all}"
 DT_ONEAGENT_PREFIX_DIR="${DT_ONEAGENT_PREFIX_DIR:-/var/lib}"
-DT_ONEAGENT_URL="${DT_ONEAGENT_URL}"
+DT_API_URL="${DT_API_URL}"
 
 validate_bitness    "$DT_ONEAGENT_BITNESS"    || die "failed to validate DT_ONEAGENT_BITNESS: $DT_ONEAGENT_BITNESS"
 validate_prefix_dir "$DT_ONEAGENT_PREFIX_DIR" || die "failed to validate DT_ONEAGENT_PREFIX_DIR: $DT_ONEAGENT_PREFIX_DIR"
 validate_technology "$DT_ONEAGENT_FOR"        || die "failed to validate DT_ONEAGENT_FOR: $DT_ONEAGENT_FOR"
 
-# Build Dynatrace OneAgent download URL.
-if [ -z "$DT_ONEAGENT_URL" ]; then
-  build_oneagent_url "$DT_CLUSTER_HOST" "$DT_TENANT" "$DT_API_TOKEN" "$DT_ONEAGENT_BITNESS" "$DT_ONEAGENT_FOR"
+# Build Dynatrace API URL.
+if [ -z "$DT_API_URL" ]; then
+  build_api_url "$DT_CLUSTER_HOST" "$DT_TENANT"
 fi
+
+# Build Dynatrace OneAgent download URL.
+build_oneagent_download_url "$DT_API_URL" "$DT_API_TOKEN" "$DT_ONEAGENT_BITNESS" "$DT_ONEAGENT_FOR"
 
 # Download and install Dynatrace OneAgent.
 install_oneagent "$DT_ONEAGENT_URL" "$DT_ONEAGENT_PREFIX_DIR"

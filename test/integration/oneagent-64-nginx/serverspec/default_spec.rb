@@ -10,8 +10,8 @@ require ENV['HOME'] + '/test/dynatrace/util.rb'
 
 # Test installer: NGINX, 64-bit, into /tmp)
 opts = {
-  DT_CLUSTER_HOST:        Dynatrace::Defaults::DT_CLUSTER_HOST,
   DT_API_TOKEN:           Dynatrace::Defaults::DT_API_TOKEN,
+  DT_API_URL:             Dynatrace::Defaults::DT_API_URL,
   DT_ONEAGENT_FOR:        'nginx',
   DT_ONEAGENT_BITNESS:    '64',
   DT_ONEAGENT_PREFIX_DIR: '/tmp'

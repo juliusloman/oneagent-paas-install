@@ -74,12 +74,6 @@ describe command(Dynatrace::Util::parse_cmd('~/dynatrace-oneagent-paas.sh', opts
   its(:exit_status) { should eq 1 }
 end
 
-opts = { DT_TENANT: '123456789', DT_API_TOKEN: 'abcdefghijklmnopqrstuvwxyz' }
-describe command(Dynatrace::Util::parse_cmd('~/dynatrace-oneagent-paas.sh', opts)) do
-  its(:stderr) { should eq "dynatrace-oneagent-paas.sh: failed to validate DT_TENANT: 123456789\n" }
-  its(:exit_status) { should eq 1 }
-end
-
 # Test installer with invalid DT_TENANT and invalid DT_API_TOKEN
 opts = { DT_TENANT: nil, DT_API_TOKEN: nil }
 describe command(Dynatrace::Util::parse_cmd('~/dynatrace-oneagent-paas.sh', opts)) do
@@ -93,20 +87,20 @@ describe command(Dynatrace::Util::parse_cmd('~/dynatrace-oneagent-paas.sh', opts
   its(:exit_status) { should eq 1 }
 end
 
-# Test installer with invalid DT_CLUSTER_HOST and valid DT_API_TOKEN
-opts = { DT_CLUSTER_HOST: nil, DT_API_TOKEN: 'abcdefghijklmnopqrstuvwxyz' }
+# Test installer with invalid DT_CLUSTER_HOST and valid DT_TENANT and DT_API_TOKEN
+opts = { DT_CLUSTER_HOST: nil, DT_TENANT: '12345678', DT_API_TOKEN: 'abcdefghijklmnopqrstuvwxyz' }
 describe command(Dynatrace::Util::parse_cmd('~/dynatrace-oneagent-paas.sh', opts)) do
   its(:stderr) { should eq "dynatrace-oneagent-paas.sh: failed to validate DT_CLUSTER_HOST: \n" }
   its(:exit_status) { should eq 1 }
 end
 
-opts = { DT_CLUSTER_HOST: '-123abc', DT_API_TOKEN: 'abcdefghijklmnopqrstuvwxyz' }
+opts = { DT_CLUSTER_HOST: '-123abc', DT_TENANT: '12345678', DT_API_TOKEN: 'abcdefghijklmnopqrstuvwxyz' }
 describe command(Dynatrace::Util::parse_cmd('~/dynatrace-oneagent-paas.sh', opts)) do
   its(:stderr) { should eq "dynatrace-oneagent-paas.sh: failed to validate DT_CLUSTER_HOST: -123abc\n" }
   its(:exit_status) { should eq 1 }
 end
 
-opts = { DT_CLUSTER_HOST: 'http://12345678.live.dynatrace.com', DT_API_TOKEN: 'abcdefghijklmnopqrstuvwxyz' }
+opts = { DT_CLUSTER_HOST: 'http://12345678.live.dynatrace.com', DT_TENANT: '12345678', DT_API_TOKEN: 'abcdefghijklmnopqrstuvwxyz' }
 describe command(Dynatrace::Util::parse_cmd('~/dynatrace-oneagent-paas.sh', opts)) do
   its(:stderr) { should eq "dynatrace-oneagent-paas.sh: failed to validate DT_CLUSTER_HOST: http://12345678.live.dynatrace.com\n" }
   its(:exit_status) { should eq 1 }
@@ -158,9 +152,8 @@ describe command(Dynatrace::Util::parse_cmd('~/dynatrace-oneagent-paas.sh', opts
 end
 
 # Test installer with non-existent DT_CLUSTER_HOST
-opts = { DT_CLUSTER_HOST: 'my-tenant.my-dynatrace-cluster.com', DT_API_TOKEN: 'abcdefghijklmnopqrstuvwxyz' }
+opts = { DT_CLUSTER_HOST: 'my-dynatrace-cluster.com', DT_TENANT: 'my-tenant', DT_API_TOKEN: 'abcdefghijklmnopqrstuvwxyz' }
 describe command(Dynatrace::Util::parse_cmd('~/dynatrace-oneagent-paas.sh', opts)) do
-  its(:stdout) { should contain "Connecting to https://my-tenant.my-dynatrace-cluster.com" }
   its(:stderr) { should match /could not resolve host/i }
   its(:exit_status) { should_not eq 0 }
 end
@@ -169,25 +162,23 @@ end
 opts = { DT_TENANT: '12345678', DT_API_TOKEN: 'abcdefghijklmnopqrstuvwxyz' }
 describe command(Dynatrace::Util::parse_cmd('~/dynatrace-oneagent-paas.sh', opts)) do
   its(:stdout) { should contain "Connecting to https://12345678.live.dynatrace.com/" }
-  its(:stderr) { should match /failed to resolve tenant <12345678>/i }
-  its(:stderr) { should contain "404" }
+  its(:stderr) { should contain "404 Not Found" }
   its(:exit_status) { should_not eq 0 }
 end
 
 # Test installer with invalid DT_API_TOKEN
-opts = { DT_CLUSTER_HOST: Dynatrace::Defaults::DT_CLUSTER_HOST, DT_API_TOKEN: 'abcdefghijklmnopqrstuvwxyz' }
+opts = { DT_API_URL: Dynatrace::Defaults::DT_API_URL, DT_API_TOKEN: 'abcdefghijklmnopqrstuvwxyz' }
 describe command(Dynatrace::Util::parse_cmd('~/dynatrace-oneagent-paas.sh', opts)) do
-  its(:stdout) { should contain "Connecting to https://#{Dynatrace::Defaults::DT_CLUSTER_HOST}" }
-  its(:stderr) { should match /token authentication failed/i }
-  its(:stderr) { should contain "401" }
+  its(:stdout) { should contain "Connecting to https://#{Dynatrace::Defaults::DT_TENANT}.#{Dynatrace::Defaults::DT_CLUSTER_HOST}" }
+  its(:stderr) { should contain "401 Unauthorized" }
   its(:exit_status) { should_not eq 0 }
 end
 
 # Test installer: defaults
-opts = { DT_CLUSTER_HOST: Dynatrace::Defaults::DT_CLUSTER_HOST, DT_API_TOKEN: Dynatrace::Defaults::DT_API_TOKEN }
+opts = { DT_API_URL: Dynatrace::Defaults::DT_API_URL, DT_API_TOKEN: Dynatrace::Defaults::DT_API_TOKEN }
 describe command(Dynatrace::Util::parse_cmd('~/dynatrace-oneagent-paas.sh', opts)) do
   its(:stdout) { should match /Installing to \/var\/lib.*Unpacking complete./m }
-  its(:stdout) { should contain "Connecting to https://#{Dynatrace::Defaults::DT_CLUSTER_HOST}" }
+  its(:stdout) { should contain "Connecting to #{Dynatrace::Defaults::DT_API_URL}" }
   its(:exit_status) { should eq 0 }
 end
 
