@@ -1,3 +1,5 @@
+# PLEASE NOTE THAT THE CODE AND CONTENTS OF THIS REPOSITORY ARE NOT YET READY FOR PRODUCTION USE.
+
 # Dynatrace OneAgent for PaaS Installer
 
 The Dynatrace OneAgent for PaaS installer enables Dynatrace monitoring in environments where installing OneAgent for full-stack monitoring on cluster nodes is not an option.
